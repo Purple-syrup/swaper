@@ -13,7 +13,12 @@ contract swapperFactory{
     {
         if(_peer2!=address(0)&&_token0!=address(0)&&_token1!=address(0))
         {
-        creator(_token0, _token1);
+        bytes memory bytecode = type(nftSwapper).creationCode;
+        bytes32 salt = keccak256(abi.encodePacked(_token0,_token1));
+        address sender = msg.sender;
+        assembly{
+            pair:= create2(0, sender, mload(bytecode), salt)
+        }
         InftSwapper(pair).initialize(_token0, _token0ID, _token1, msg.sender, _peer2);
         emit PairCreated(_token0, _token1, pair);
         }else 
